@@ -1,5 +1,6 @@
 # Cricket-Scores
 Get rid of the hassle of regularly viewing Cricket Scores from your browser and reduce your distractions.
+
 Using your terminal, view live cricket scores and scorecards. 
 
 Screenshots : 
