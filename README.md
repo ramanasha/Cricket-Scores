@@ -13,6 +13,7 @@ git clone https://github.com/sartaj10/Cricket-Scores.git
 To run the script : 
 
 ```
+cd Cricket-Scores
 python cricket.py
 ```
 
