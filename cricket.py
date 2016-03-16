@@ -60,6 +60,7 @@ def tabulate_results(first_innings,second_innings,match_status,match_scorecard):
 	    element.append(second_innings[i])
 	    element.append(match_status[i])
 	    t.append(element)
+
 	print tabulate(t,headers=["Index","First Innings","Second Innings","Match Status"])
 
 def main():
