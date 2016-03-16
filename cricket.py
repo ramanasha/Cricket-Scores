@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+import urllib2, re, os, sys, subprocess, short_url
+from bs4 import BeautifulSoup
+from tabulate import tabulate
+
+def open_webpage(url):
+    if sys.platform == "win32":
+        os.startfile(url)
+    else:
+        opener ="open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.call([opener, url])
+
+response = urllib2.urlopen('http://www.espncricinfo.com/ci/engine/match/index.html?view=live')
+page_source = response.read()
+soup = BeautifulSoup(page_source, 'html.parser')
+
+matches = soup.find('section',{'id':'live-match-data'})
+
+match_scorecard = []
+first_innings = []
+second_innings = []
+match_status = []
+
+for match in matches.find_all('section',{'class':'matches-day-block'}):
+	
+	div = match.find_all('section',{'class':'default-match-block'})
+	
+	for d in div:
+		match_info = d.find('span',{'class':'match-no'})
+		match = match_info.find('a')
+		scorecard = 'http://www.espncricinfo.com' + str(match['href'])		
+		match_scorecard.append(scorecard)
+
+		first_score = d.find('div',{'class':'innings-info-1'}).get_text()
+ 		first_innings.append(first_score)
+
+		second_score = d.find('div',{'class':'innings-info-2'}).get_text()
+		second_innings.append(second_score)
+
+		status = d.find('div',{'class':'match-status'})
+		status_info = status.find('span').get_text()
+		match_status.append(status_info[0:75])
+
+t = []
+for i in xrange(len(first_innings)):
+    element = []
+    element.append(i)
+    element.append(first_innings[i])
+    element.append(second_innings[i])
+    element.append(match_status[i])
+    t.append(element)
+
+print tabulate(t,headers=["Index","First Innings","Second Innings","Match Status"])
+
+length = len(first_innings)
+input_index = int(raw_input("Choose option: 0-"+str(length-1) + " to view scorecard OR press " + str(length) + " to exit : "))
+
+if(input_index == length):
+	sys.exit(1)
+else:
+	open_webpage(match_scorecard[input_index])
