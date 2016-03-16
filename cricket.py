@@ -31,23 +31,21 @@ def extract_results(response):
 	second_innings = []
 	match_status = []
 
-	for match in matches.find_all('section',{'class':'matches-day-block'}):		
-		div = match.find_all('section',{'class':'default-match-block'})
-		for d in div:
-			match_info = d.find('span',{'class':'match-no'})
-			match = match_info.find('a')
-			scorecard = 'http://www.espncricinfo.com' + str(match['href'])		
+	for match in matches.find_all('section',{'class':'default-match-block'}):		
+		match_info = match.find('a')
+		if match_info.parent.name == 'span':
+			scorecard = 'http://www.espncricinfo.com' + str(match_info['href'])		
 			match_scorecard.append(scorecard)
 
-			first_score = d.find('div',{'class':'innings-info-1'}).get_text()
-	 		first_innings.append(first_score)
+		first_score = match.find('div',{'class':'innings-info-1'}).get_text()
+ 		first_innings.append(first_score)
 
-			second_score = d.find('div',{'class':'innings-info-2'}).get_text()
-			second_innings.append(second_score)
+		second_score = match.find('div',{'class':'innings-info-2'}).get_text()
+		second_innings.append(second_score)
 
-			status = d.find('div',{'class':'match-status'})
-			status_info = status.find('span').get_text()
-			match_status.append(status_info[0:75])
+		status = match.find('div',{'class':'match-status'})
+		status_info = status.find('span').get_text()
+		match_status.append(status_info[0:75])
 
 	return first_innings, second_innings, match_status, match_scorecard
 
@@ -65,6 +63,7 @@ def tabulate_results(first_innings,second_innings,match_status,match_scorecard):
 
 def main():
 	first_innings, second_innings, match_status, match_scorecard = get_response_from_server()
+	
 	tabulate_results(first_innings,second_innings,match_status,match_scorecard)
 
 	length = len(first_innings)
