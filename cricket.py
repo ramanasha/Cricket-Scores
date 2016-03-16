@@ -10,52 +10,69 @@ def open_webpage(url):
         opener ="open" if sys.platform == "darwin" else "xdg-open"
         subprocess.call([opener, url])
 
-response = urllib2.urlopen('http://www.espncricinfo.com/ci/engine/match/index.html?view=live')
-page_source = response.read()
-soup = BeautifulSoup(page_source, 'html.parser')
+def get_response_from_server():
+    response = urllib2.urlopen('http://www.espncricinfo.com/ci/engine/match/index.html?view=live')
+    if(response == None):
+        print "No Internet Connection !!"
+    else:
+        return extract_results(response)
 
-matches = soup.find('section',{'id':'live-match-data'})
+def get_html_response(response):
+    page_source = response.read()
+    soup = BeautifulSoup(page_source, "html.parser")
+    return soup
 
-match_scorecard = []
-first_innings = []
-second_innings = []
-match_status = []
+def extract_results(response):
+	soup = get_html_response(response)
+	matches = soup.find('section',{'id':'live-match-data'})
 
-for match in matches.find_all('section',{'class':'matches-day-block'}):
-	
-	div = match.find_all('section',{'class':'default-match-block'})
-	
-	for d in div:
-		match_info = d.find('span',{'class':'match-no'})
-		match = match_info.find('a')
-		scorecard = 'http://www.espncricinfo.com' + str(match['href'])		
-		match_scorecard.append(scorecard)
+	match_scorecard = []
+	first_innings = []
+	second_innings = []
+	match_status = []
 
-		first_score = d.find('div',{'class':'innings-info-1'}).get_text()
- 		first_innings.append(first_score)
+	for match in matches.find_all('section',{'class':'matches-day-block'}):		
+		div = match.find_all('section',{'class':'default-match-block'})
+		for d in div:
+			match_info = d.find('span',{'class':'match-no'})
+			match = match_info.find('a')
+			scorecard = 'http://www.espncricinfo.com' + str(match['href'])		
+			match_scorecard.append(scorecard)
 
-		second_score = d.find('div',{'class':'innings-info-2'}).get_text()
-		second_innings.append(second_score)
+			first_score = d.find('div',{'class':'innings-info-1'}).get_text()
+	 		first_innings.append(first_score)
 
-		status = d.find('div',{'class':'match-status'})
-		status_info = status.find('span').get_text()
-		match_status.append(status_info[0:75])
+			second_score = d.find('div',{'class':'innings-info-2'}).get_text()
+			second_innings.append(second_score)
 
-t = []
-for i in xrange(len(first_innings)):
-    element = []
-    element.append(i)
-    element.append(first_innings[i])
-    element.append(second_innings[i])
-    element.append(match_status[i])
-    t.append(element)
+			status = d.find('div',{'class':'match-status'})
+			status_info = status.find('span').get_text()
+			match_status.append(status_info[0:75])
 
-print tabulate(t,headers=["Index","First Innings","Second Innings","Match Status"])
+	return first_innings, second_innings, match_status, match_scorecard
 
-length = len(first_innings)
-input_index = int(raw_input("Choose option: 0-"+str(length-1) + " to view scorecard OR press " + str(length) + " to exit : "))
+def tabulate_results(first_innings,second_innings,match_status,match_scorecard):
+	t = []
+	for i in xrange(len(first_innings)):
+	    element = []
+	    element.append(i)
+	    element.append(first_innings[i])
+	    element.append(second_innings[i])
+	    element.append(match_status[i])
+	    t.append(element)
+	print tabulate(t,headers=["Index","First Innings","Second Innings","Match Status"])
 
-if(input_index == length):
-	sys.exit(1)
-else:
-	open_webpage(match_scorecard[input_index])
+def main():
+	first_innings, second_innings, match_status, match_scorecard = get_response_from_server()
+	tabulate_results(first_innings,second_innings,match_status,match_scorecard)
+
+	length = len(first_innings)
+	input_index = int(raw_input("Choose option: 0-"+str(length-1) + " to view scorecard OR press " + str(length) + " to exit : "))
+
+	if(input_index == length):
+		sys.exit(1)
+	else:
+		open_webpage(match_scorecard[input_index])
+
+if __name__ == "__main__":
+	main()
