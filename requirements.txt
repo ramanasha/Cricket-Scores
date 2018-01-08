@@ -1,0 +1,4 @@
+BeautifulSoup==3.2.1
+short_url==1.2.2
+tabulate==0.8.2
+bs4==0.0.1
