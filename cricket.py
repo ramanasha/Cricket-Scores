@@ -34,7 +34,7 @@ def extract_results(response):
 	for match in matches.find_all('section',{'class':'default-match-block'}):		
 		match_info = match.find('a')
 		if match_info.parent.name == 'span':
-			scorecard = 'http://www.espncricinfo.com' + str(match_info['href'])		
+			scorecard = str(match_info['href'])		
 			match_scorecard.append(scorecard)
 
 		first_score = match.find('div',{'class':'innings-info-1'}).get_text()
