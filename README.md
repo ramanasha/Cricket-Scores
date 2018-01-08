@@ -14,6 +14,7 @@ git clone https://github.com/sartaj10/Cricket-Scores.git
 
 ```
 cd Cricket-Scores
+pip install -r requirements.txt
 python cricket.py
 ```
 
